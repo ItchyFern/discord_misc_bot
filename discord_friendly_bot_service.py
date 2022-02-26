@@ -50,8 +50,8 @@ async def on_message(message):
                 msg_json = loads(msg)
                 print(msg_json)
                 msg_send = await message.channel.send(build_message(msg_json))
-                for key in msg_json["options"]:
-                    await msg_send.add_reaction(key.strip())
+                for emote in msg_json["options"]:
+                    await msg_send.add_reaction(emote.strip())
                 if msg_json.get("delete", False):
                     # delete the command message
                     await message.delete()
