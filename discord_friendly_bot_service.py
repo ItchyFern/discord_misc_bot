@@ -8,6 +8,10 @@ from json import loads
 
 prefix = "$"
 
+#TEMP ROLE VARIABLE
+TEMP_ROLE_VARIABLE = []
+
+
 intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
@@ -70,10 +74,38 @@ async def on_message(message):
                 msg_send = await message.channel.send(utils.build_message(msg_json))
                 for emote in msg_json["options"]:
                     await msg_send.add_reaction(emote.strip())
+                
+                # if role call in survey
+                # build db entry
+                # Guild table
+                # only owner of the guild can do this message
+                if "r" in args and message.author == message.guild.owner:
+                    print(f"guild: {[message.guild.id, message.guild.name]}")
+                    print(f"role_msg: {[msg_send.id, message.guild.id]}")
+                    res = []
+                    for emote in msg_json["options"]:
+                        msg_id = msg_send.id
+                        emote = emote  # ik redundant
+                        emote_custom = True if emote.startswith("<") else False  # check if emote is custom by if first character is <
+                        role_id = utils.get_role_id(message.guild.roles, msg_json["options"][emote])
+
+                        res.append([msg_id, emote, emote_custom, role_id])
+                    print(f"role_emote: {res}")
+                    TEMP_ROLE_VARIABLE = None
+
+
+        
+        if cmd == "get_info":
+            guild = message.guild
+            print(f"Guild: {[guild.id, guild.name, guild.owner]}")
+            role_msg = await message.channel.send("response message to harvest data from")
+            print(f"Role_MSG: {[role_msg.id, role_msg.guild]}")
+
     
         if "d" in args:
             # delete the command message
             await message.delete()
+        
                 
 
 @client.event
