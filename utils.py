@@ -10,6 +10,8 @@ sample_json = json.loads(sample_string)
 def save():
     pass
 
+# STRING MANIPULATION
+
 def get_args(m):
     # split to see second entry in message content
     split_m = str(m).split(" ")
@@ -35,11 +37,39 @@ def build_message(j):
     # message.append("```")
     return "\n".join(message)
 
+# DATABASE COMMANDS
+
 def db_connect():
-    return sqlite3.connect(DATABASE_NAME)
+    db = sqlite3.connect(DATABASE_NAME)
+    return db, db.cursor()
+
+def add_role_msg(payload):
+    # connect to db
+    db, cursor = db_connect()
+    #print(payload)
+    ret = False
+    try:
+        # try to add row into role_emoji
+        cursor.execute(f"INSERT INTO role_emoji (msg_id, emoji, role_id) \
+                        VALUES ({payload['msg_id']}, \"{payload['emoji']}\", {payload['role_id']})")
+        ret = True
+    except Exception as e:
+        # if fail, print exception and return False
+        print (e)
+    
+    if ret:
+        db.commit()
+    
+    cursor.close()
+    db.close()
+    return ret
+
+
+# DISCORD PY ASSIST TOOL
 
 def get_role_id(roles, name):
     for role in roles:
         if role.name == name:
+            print("found role", name)
             return role.id
     return -1

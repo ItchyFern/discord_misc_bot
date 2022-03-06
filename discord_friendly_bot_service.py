@@ -8,10 +8,6 @@ from json import loads
 
 prefix = "$"
 
-#TEMP ROLE VARIABLE
-TEMP_ROLE_VARIABLE = []
-
-
 intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
@@ -22,6 +18,23 @@ client = discord.Client(intents=intents, activity=discord.Activity(type=discord.
 @client.event
 # Print when the program is ready for input
 async def on_ready():
+    # connect to db
+    db, cursor = utils.db_connect()
+    # check if table is created for role_emoji
+    try: 
+        cursor.execute("CREATE TABLE role_emoji ( \
+	                        msg_id INT NOT NULL, \
+   	                        emoji TEXT NOT NULL, \
+                            role_id INT NOT NULL);")
+        print("role_emoji table created")
+        db.commit()
+        print("role_emoji committed")
+    except Exception as e:
+        print(e)
+
+    # close db connection
+    cursor.close()
+    db.close()
     print("We have logged in as {0.user}".format(client))
 
 @client.event
@@ -80,26 +93,20 @@ async def on_message(message):
                 # Guild table
                 # only owner of the guild can do this message
                 if "r" in args and message.author == message.guild.owner:
-                    print(f"guild: {[message.guild.id, message.guild.name]}")
-                    print(f"role_msg: {[msg_send.id, message.guild.id]}")
-                    res = []
-                    for emote in msg_json["options"]:
-                        msg_id = msg_send.id
-                        emote = emote  # ik redundant
-                        emote_custom = True if emote.startswith("<") else False  # check if emote is custom by if first character is <
-                        role_id = utils.get_role_id(message.guild.roles, msg_json["options"][emote])
-
-                        res.append([msg_id, emote, emote_custom, role_id])
-                    print(f"role_emote: {res}")
-                    TEMP_ROLE_VARIABLE = None
+                    for emoji in msg_json["options"]:
+                        payload = {}
+                        payload["msg_id"] = int(msg_send.id)
+                        payload["emoji"] = emoji
+                        payload["role_id"] = int(utils.get_role_id(message.guild.roles, msg_json["options"][emoji]))
+                        utils.add_role_msg(payload)
 
 
         
-        if cmd == "get_info":
-            guild = message.guild
-            print(f"Guild: {[guild.id, guild.name, guild.owner]}")
-            role_msg = await message.channel.send("response message to harvest data from")
-            print(f"Role_MSG: {[role_msg.id, role_msg.guild]}")
+        if cmd == "drop_table":
+            db, cursor = utils.db_connect()
+            print(cursor.execute("DROP TABLE role_emoji;").fetchall())
+            cursor.close()
+            db.close()
 
     
         if "d" in args:
@@ -110,18 +117,35 @@ async def on_message(message):
 
 @client.event
 async def on_raw_reaction_add(payload):
+    await reaction_helper(payload)
     # Check if the reaction is to the role message
     if payload.message_id == 945682836768309338:
         await change_role(payload)
 
 @client.event
 async def on_raw_reaction_remove(payload):
+    await reaction_helper(payload)
     # Check if the reaction is to the role message
     if payload.message_id == 945682836768309338:
         await change_role(payload)
+
+async def reaction_helper(payload):
+    # connect to db
+    db, cursor = utils.db_connect()
+    # get all role_emoji msg_ids 
+    rows = cursor.execute("SELECT DISTINCT msg_id FROM role_emoji").fetchall()
+    print(rows)
+    # check if payload msg_id is in role_emoji msg_ids 
+    for row in rows:
+        if payload.message_id == row[0]:
+            await change_role(payload)
+    # close db
+    cursor.close()
+    db.close()
         
 
 async def change_role(payload):
+    """
     print(payload.user_id)
     print(payload.event_type)
     # get guild object
@@ -155,7 +179,33 @@ async def change_role(payload):
     print(member)
     role = guild.get_role(role_id)
     print(role)
+    """
+    # connect to db
+    db, cursor = utils.db_connect()
+    # get rows where the payload message id is
+    rows = cursor.execute(f"SELECT emoji, role_id FROM role_emoji WHERE msg_id={payload.message_id}").fetchall()
+    print(rows)
+    role_id = -1
 
+    # loop through all role emojis for that message id
+    for row in rows:
+        # if payload emoji is equal to the role emoji for that message id
+        if str(payload.emoji) == str(row[0].strip()):
+            # set role_id to the role id for the emoji for that message id
+            role_id = row[1]
+    
+    # close db connection 
+    cursor.close()
+    db.close()
+    
+    if role_id == -1:
+        print("role not found in message")
+        return False
+
+    # get guild, member, and role
+    guild = client.get_guild(payload.guild_id)
+    member = guild.get_member(payload.user_id)
+    role = guild.get_role(role_id)
     if payload.event_type == "REACTION_ADD":
         await member.add_roles(role, reason="React role add")
     else:
