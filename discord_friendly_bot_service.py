@@ -94,12 +94,29 @@ async def on_message(message):
                 # Guild table
                 # only owner of the guild can do this message
                 if "r" in args and message.author == message.guild.owner:
+                    # build payload set, check for errors, then add if no errors
+                    payload_set = []
+                    error_set = []
                     for emoji in msg_json["options"]:
                         payload = {}
                         payload["msg_id"] = int(msg_send.id)
-                        payload["emoji"] = emoji
+                        payload["emoji"] = emoji.strip()
                         payload["role_id"] = int(utils.get_role_id(message.guild.roles, msg_json["options"][emoji]))
-                        utils.add_role_msg(payload)
+                        if payload["role_id"] == -1:
+                            error_set.append(f"{len(error_set) + 1}. Error with role: {msg_json['options'][emoji]}")
+                        payload_set.append(payload)
+
+                    # if there are no errors
+                    if error_set == []:
+                        # add role msg entries for each emote in the payload
+                        for payload in payload_set: utils.add_role_msg(payload)
+                    
+                    # if there are errors, do not add any roles, print errors
+                    else:
+                        await message.channel.send("####ERROR####\n Command prevented.\n" + "\n".join(error_set))
+                        await msg_send.delete()
+
+                    
         
         if cmd == "remove_role_msg" and message.author == message.guild.owner:
             # get replied to message
