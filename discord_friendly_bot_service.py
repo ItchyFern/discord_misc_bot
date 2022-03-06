@@ -145,41 +145,6 @@ async def reaction_helper(payload):
         
 
 async def change_role(payload):
-    """
-    print(payload.user_id)
-    print(payload.event_type)
-    # get guild object
-    guild = client.get_guild(payload.guild_id)
-    print(guild)
-    
-    # convert emoji to unicode
-    e_str = str(payload.emoji)
-
-    # check contents of emoji
-    if e_str == "🎊":
-        role_id = 928333529161535619
-    elif e_str == "🎲":
-        role_id = 928333059751821333
-    elif e_str == "🔫":
-        role_id = 928333452166696980
-    elif e_str == "🎵":
-        role_id = 928339820957278289
-    elif e_str == "📼":
-        role_id = 928339868839473192
-    elif e_str == "🧐":
-        role_id = 928341159808499793
-    elif e_str == "🖥️":
-        role_id = 928342309182005308
-    else:
-        print("fail")
-        return
-
-    # get member and role objects
-    member = guild.get_member(payload.user_id)
-    print(member)
-    role = guild.get_role(role_id)
-    print(role)
-    """
     # connect to db
     db, cursor = utils.db_connect()
     # get rows where the payload message id is
