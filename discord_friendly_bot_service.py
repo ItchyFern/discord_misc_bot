@@ -109,7 +109,8 @@ async def on_message(message):
                     # if there are no errors
                     if error_set == []:
                         # add role msg entries for each emote in the payload
-                        for payload in payload_set: utils.add_role_msg(payload)
+                        for payload in payload_set: 
+                            utils.add_role_msg(payload)
                     
                     # if there are errors, do not add any roles, print errors
                     else:
