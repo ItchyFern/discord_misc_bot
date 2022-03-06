@@ -58,6 +58,7 @@ async def on_message(message):
         # get command args
         # ex: survey -dr
         args = utils.get_args(message.content)
+        print(args)
         
         # get command content
         # start by assuming you will just need to cut the command out
@@ -102,11 +103,7 @@ async def on_message(message):
 
 
         
-        if cmd == "drop_table":
-            db, cursor = utils.db_connect()
-            print(cursor.execute("DROP TABLE role_emoji;").fetchall())
-            cursor.close()
-            db.close()
+        
 
     
         if "d" in args:

@@ -22,7 +22,7 @@ def get_args(m):
         # take the second entry                     | "-dr"
         # remove the first value of the str -       | "dr"
         # split the string to get individual args   | ["d", "r"]
-        return split_m[1][1:].split()
+        return list(split_m[1][1:])
     else:
         return []
 
