@@ -100,6 +100,23 @@ async def on_message(message):
                         payload["emoji"] = emoji
                         payload["role_id"] = int(utils.get_role_id(message.guild.roles, msg_json["options"][emoji]))
                         utils.add_role_msg(payload)
+        
+        if cmd == "remove_role_msg" and message.author == message.guild.owner:
+            # get replied to message
+            if message.reference != None:
+                #connect to db
+                db, cursor = utils.db_connect()
+                #remove rows from role_emoji where message id = role_emoji.msg_id
+                msg_id = message.reference.message_id 
+                cursor.execute(f"DELETE FROM role_emoji WHERE msg_id={msg_id}")
+
+                #commit the deletion
+                db.commit()
+                await message.channel.send("Deleted msg from database")
+                #close the db
+                cursor.close()
+                db.close()
+            
 
 
         
@@ -131,7 +148,7 @@ async def reaction_helper(payload):
     db, cursor = utils.db_connect()
     # get all role_emoji msg_ids 
     rows = cursor.execute("SELECT DISTINCT msg_id FROM role_emoji").fetchall()
-    print(rows)
+    #print(rows)
     # check if payload msg_id is in role_emoji msg_ids 
     for row in rows:
         if payload.message_id == row[0]:
