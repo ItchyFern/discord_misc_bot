@@ -9,15 +9,17 @@ from json import loads
 
 prefix = "$"
 
+# Set all intents
 intents = discord.Intents.default()
+intents.bans = True  # for logging
+intents.guilds = True  
+intents.invites = True  # for logging
 intents.members = True
-intents.reactions = True
-intents.presences = True
-intents.invites = True
-intents.bans = True
-intents.voice_states = True
-intents.guilds = True
+intents.presences = True  # for logging
+intents.reactions = True  
+intents.voice_states = True  # for logging
 
+# initialize the client
 client = discord.Client(intents=intents, activity=discord.Activity(type=discord.ActivityType.watching, name=f"for {prefix}help"))
 
 # PROOF OF RUNNING SCRIPT
