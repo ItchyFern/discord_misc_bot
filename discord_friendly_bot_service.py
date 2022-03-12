@@ -13,6 +13,11 @@ intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
 intents.presences = True
+intents.invites = True
+intents.bans = True
+intents.voice_states = True
+intents.guilds = True
+
 client = discord.Client(intents=intents, activity=discord.Activity(type=discord.ActivityType.watching, name=f"for {prefix}help"))
 
 # PROOF OF RUNNING SCRIPT
