@@ -18,23 +18,7 @@ client = discord.Client(intents=intents, activity=discord.Activity(type=discord.
 @client.event
 # Print when the program is ready for input
 async def on_ready():
-    # connect to db
-    db, cursor = utils.db_connect()
-    # check if table is created for role_emoji
-    try: 
-        cursor.execute("CREATE TABLE role_emoji ( \
-	                        msg_id INT NOT NULL, \
-   	                        emoji TEXT NOT NULL, \
-                            role_id INT NOT NULL);")
-        print("role_emoji table created")
-        db.commit()
-        print("role_emoji committed")
-    except Exception as e:
-        print(e)
-
-    # close db connection
-    cursor.close()
-    db.close()
+    utils.db_build()
     print("We have logged in as {0.user}".format(client))
 
 @client.event

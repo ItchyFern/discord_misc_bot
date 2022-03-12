@@ -43,6 +43,25 @@ def db_connect():
     db = sqlite3.connect(DATABASE_NAME)
     return db, db.cursor()
 
+def db_build():
+    # connect to db
+    db, cursor = db_connect()
+    # check if table is created for role_emoji
+    try: 
+        cursor.execute("CREATE TABLE role_emoji ( \
+	                        msg_id INT NOT NULL, \
+   	                        emoji TEXT NOT NULL, \
+                            role_id INT NOT NULL);")
+        print("role_emoji table created")
+        db.commit()
+        print("role_emoji committed")
+    except Exception as e:
+        print(e)
+
+    # close db connection
+    cursor.close()
+    db.close()
+
 def add_role_msg(payload):
     # connect to db
     db, cursor = db_connect()
