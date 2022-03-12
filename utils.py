@@ -62,7 +62,7 @@ def db_build():
     cursor.close()
     db.close()
 
-def add_role_msg(payload):
+def db_add_role_msg(payload):
     # connect to db
     db, cursor = db_connect()
     #print(payload)
