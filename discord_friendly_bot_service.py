@@ -158,6 +158,77 @@ async def change_role(payload):
         except:
             print("didn't have the role already")
 
+##################
+# Logging Events #
+##################
+@client.event
+async def on_error(event, *args, **kwargs):
+    pass
 
+@client.event
+async def on_raw_message_delete(payload):
+    pass
+
+@client.event
+async def on_raw_message_edit(payload):
+    pass
+
+@client.event
+async def on_guild_channel_delete(channel):
+    pass
+
+@client.event
+async def on_guild_channel_create(channel):
+    pass
+
+@client.event
+async def on_guild_channel_update(before, after):
+    pass
+
+@client.event
+async def on_member_join(member):
+    pass
+
+@client.event
+async def on_member_remove(member):
+    pass
+
+@client.event
+async def on_member_update(before, after):
+    pass
+
+@client.event
+async def on_guild_role_create(role):
+    pass
+
+@client.event
+async def on_guild_role_delete(role):
+    pass
+
+@client.event
+async def on_guild_role_update(before, after):
+    pass
+
+@client.event
+async def on_voice_state_update(member, before, after):
+    pass
+
+@client.event
+async def on_member_ban(guild, user):
+    pass
+
+@client.event
+async def on_member_unban(guild, user):
+    pass
+
+@client.event
+async def on_invite_create(invite):
+    pass
+
+@client.event
+async def on_invite_delete(invite):
+    pass
+
+# load from .env to get discord token
 load_dotenv()
 client.run(os.environ['DISCORD_TOKEN'])
